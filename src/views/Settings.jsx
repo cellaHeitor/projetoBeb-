@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppContext } from '../context/Context';
 import {
@@ -24,25 +24,41 @@ const Settings = () => {
   const [comprimento, setComprimento] = useState(localStorage.getItem('bebê-comprimento') || bebê.comprimento || '');
   const [idioma, setIdioma] = useState(localStorage.getItem('idioma') || 'pt');
 
+  // Referências para os campos de entrada
+  const nomeRef = useRef(null);
+  const pesoRef = useRef(null);
+  const comprimentoRef = useRef(null);
+
+  // Efeito para atualizar o localStorage quando os dados mudam
   useEffect(() => {
     localStorage.setItem('bebê-nome', nome);
     localStorage.setItem('bebê-peso', peso);
     localStorage.setItem('bebê-comprimento', comprimento);
   }, [nome, peso, comprimento]);
 
+  // Efeito para atualizar o idioma no localStorage
   useEffect(() => {
     localStorage.setItem('idioma', idioma);
     i18n.changeLanguage(idioma).catch((err) => console.error("Erro ao mudar o idioma:", err));
   }, [idioma]);
 
-  const handleLanguageChange = (e) => {
-    setIdioma(e.target.value);
-  };
-
   const handleSaveSettings = (e) => {
     e.preventDefault();
     setBebê({ nome, peso, comprimento });
   };
+
+  // Função para focar no campo alterado
+  useEffect(() => {
+    if (nome && nomeRef.current) nomeRef.current.focus();
+  }, [nome]);
+
+  useEffect(() => {
+    if (peso && pesoRef.current) pesoRef.current.focus();
+  }, [peso]);
+
+  useEffect(() => {
+    if (comprimento && comprimentoRef.current) comprimentoRef.current.focus();
+  }, [comprimento]);
 
   const PaperWrapper = styled(Paper)({
     padding: '20px',
@@ -65,6 +81,14 @@ const Settings = () => {
     }
   };
 
+  const handleLanguageChange = (e) => {
+    setIdioma(e.target.value);
+  };
+
+  const handleNomeChange = (e) => {
+    setNome(e.target.value);
+  };
+
   return (
     <Box sx={{ padding: '20px' }}>
       <Typography variant="h4" align="center" gutterBottom>
@@ -84,7 +108,8 @@ const Settings = () => {
                 variant="outlined"
                 fullWidth
                 value={nome}
-                onChange={(e) => setNome(e.target.value)}
+                onChange={handleNomeChange}
+                inputRef={nomeRef} // Atribui a referência ao campo de nome
               />
             </Grid>
 
@@ -96,6 +121,7 @@ const Settings = () => {
                 fullWidth
                 value={peso}
                 onChange={handlePesoChange}
+                inputRef={pesoRef} // Atribui a referência ao campo de peso
               />
             </Grid>
 
@@ -107,6 +133,7 @@ const Settings = () => {
                 fullWidth
                 value={comprimento}
                 onChange={handleComprimentoChange}
+                inputRef={comprimentoRef} // Atribui a referência ao campo de comprimento
               />
             </Grid>
           </Grid>
